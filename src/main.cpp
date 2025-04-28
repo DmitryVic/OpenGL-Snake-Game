@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <cmath> // для sin и cos, если нужно будет руками
+#include <cmath> // для sin и cos
 
 
 
@@ -118,7 +118,7 @@ int main() {
         glfwPollEvents();
     }
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    glfwDestroyWindow(window); // отрисованый буфер в изображение
+    glfwTerminate(); // обрабатывает все ожидающие события
     return 0;
 }
