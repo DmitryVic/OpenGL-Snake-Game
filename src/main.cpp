@@ -7,7 +7,7 @@
 
 int main() {
     if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW\n";
+        std::cerr << "Не удалось инициализировать GLFW\n";
         return -1;
     }
 
@@ -16,7 +16,7 @@ int main() {
 
     GLFWwindow* window = glfwCreateWindow(1000, 800, "0 1 Квадрат", nullptr, nullptr);
     if (!window) {
-        std::cerr << "Failed to create GLFW window\n";
+        std::cerr << "Не удалось создать окно GLFW\n";
         glfwTerminate();
         return -1;
     }
@@ -24,7 +24,7 @@ int main() {
     glfwMakeContextCurrent(window);
 
     if (glewInit() != GLEW_OK) {
-        std::cerr << "Failed to initialize GLEW\n";
+        std::cerr << "Не удалось инициализировать GLEW\n";
         return -1;
     }
     
