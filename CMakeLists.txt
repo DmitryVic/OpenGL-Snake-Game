@@ -1,19 +1,32 @@
 cmake_minimum_required(VERSION 3.10)
-project(OpenGLES_Emulation)
-
-set(CMAKE_CXX_STANDARD 17)
+project(SnakeGame)
 
 # Генерация compile_commands.json для cppcheck
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#путь для генерации
-set(CMAKE_EXPORT_COMPILE_COMMANDS_FILE "${CMAKE_SOURCE_DIR}/compile_commands.json")
+
+#путь для генерации set(CMAKE_EXPORT_COMPILE_COMMANDS_FILE "${CMAKE_SOURCE_DIR}/compile_commands.json")
+
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 # Находим OpenGL
 find_package(OpenGL REQUIRED)
 
-# Создаем исполняемый файл
-add_executable(OpenGLES_Emulation src/main.cpp)
+# Добавить исходники
+add_executable(SnakeGame
+    src/main.cpp
+    src/snake.cpp
+    src/Food.cpp
+    )
+
+# Явно указать include-директории для cppcheck
+target_include_directories(SnakeGame PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 # Различия между Windows и Linux
 if (WIN32)
@@ -28,7 +41,7 @@ if (WIN32)
     include_directories(${GLEW_INCLUDE_DIR} ${GLFW_INCLUDE_DIR})
     link_directories("C:/msys64/mingw64/lib")
 
-    target_link_libraries(OpenGLES_Emulation
+    target_link_libraries(SnakeGame
         OpenGL::GL
         glfw3
         glew32
@@ -39,7 +52,7 @@ else()
     find_package(GLEW REQUIRED)
     find_package(glfw3 REQUIRED)
 
-    target_link_libraries(OpenGLES_Emulation
+    target_link_libraries(SnakeGame
         OpenGL::GL
         GLEW::GLEW
         glfw

@@ -2,10 +2,23 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath> // для sin и cos
-
+#include "snake.h"
+#include "Food.h"
+#include <thread>    // Для std::this_thread   time
+#include <chrono>    // Для std::chrono        time
+#include <cstdlib>
+#include <ctime>
 
 
 int main() {
+    
+    using clock = std::chrono::steady_clock; // часы, которые гарантированно идут "вперёд" и не подвержены изменениям системного времени
+    auto lastUpdateTime = clock::now(); //clock::now() возвращает текущее время с момента запуска часов ( время последнего обновления позиции змейки)
+    const std::chrono::milliseconds updateInterval(100); // Скорость змейки: 10 обновлений/сек 
+    
+    // Инициализация генератора случайных чисел
+    std::srand(std::time(nullptr));
+
     if (!glfwInit()) {
         std::cerr << "Не удалось инициализировать GLFW\n";
         return -1;
@@ -14,125 +27,79 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(800, 800, "0 1 Квадрат", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "Змейка", nullptr, nullptr);
     if (!window) {
         std::cerr << "Не удалось создать окно GLFW\n";
         glfwTerminate();
         return -1;
     }
-
+    //Snake
     glfwMakeContextCurrent(window);
 
     if (glewInit() != GLEW_OK) {
         std::cerr << "Не удалось инициализировать GLEW\n";
         return -1;
     }
-    
-    // Начальные координаты квадрата
-    float x_offset = 0.0f; 
-    float y_offset = 0.0f; 
-    float move_speed = 0.01f; // скорость движения квадрата
-    float xGOR = 0.0f;
-    float yGOUp = 0.0f;
-    float xGOL = 0.0f;
-    float yGODo = move_speed;
 
-     float angle = 0.0f; // угол вращения
+    Snake SNAKE;
+
+    // Генерация чисел
+    float randX = -0.9f + static_cast<float>(std::rand()) / (RAND_MAX / 1.8f);
+    float randY = -0.9f + static_cast<float>(std::rand()) / (RAND_MAX / 1.8f);
+
+    Food* ptrFOOD = new Food(3.5f, 0.03f, randX, randY);
 
      // Основной цикл
      while (!glfwWindowShouldClose(window)) {
-         // Устанавливаем цвет фона
+        
+        auto currentTime = clock::now();                        // Получает текущее время
+        auto elapsedTime = currentTime - lastUpdateTime;        // Считает, сколько времени прошло с последнего обновления
+
+        // Устанавливаем цвет фона
          glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
-         glClear(GL_COLOR_BUFFER_BIT); // очищаем буфер кадра а именно фон GL_COLOR_BUFFER_BIT очистить цветовой буфер
+         glClear(GL_COLOR_BUFFER_BIT);                          // очищаем буфер кадра а именно фон GL_COLOR_BUFFER_BIT очистить цветовой буфер
 
                 // Проверяем нажатия клавиш
                 if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                    xGOR = 0.0000000000000f;
-                    xGOL = - move_speed;
-                    yGOUp = 0.0000000000000f;
-                    yGODo = 0.0000000000000f;
+                    if (SNAKE.Direct != Snake::Direction::RIGHT) // Запрещаю реверс
+                        SNAKE.Direct = Snake::Direction::LEFT;
                 }
-                // glfwGetKey(window, клавиша) проверяет состояние определённой клавиши в данный момент
-                //GLFW_PRESS — клавиша нажата (держится нажатой).
-                //GLFW_RELEASE — клавиша отпущена.
-                if (glfwGetKey(window/* указатель на окно выше GLFWwindow* window*/, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                    xGOR = move_speed;
-                    xGOL = 0.0000000000000f;
-                    yGOUp = 0.0000000000000f;
-                    yGODo = 0.0000000000000f;
+                if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    if (SNAKE.Direct != Snake::Direction::LEFT)
+                        SNAKE.Direct = Snake::Direction::RIGHT;
                 }
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                    xGOR = 0.0000000000000f;
-                    xGOL = 0.0000000000000f;
-                    yGOUp = move_speed;
-                    yGODo = 0.0000000000000f;
+                    if (SNAKE.Direct != Snake::Direction::DOWN)
+                        SNAKE.Direct = Snake::Direction::UP;
                 }
                 if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                    xGOR = 0.0000000000000f;
-                    xGOL = 0.0000000000000f;
-                    yGOUp = 0.0000000000000f;
-                    yGODo = - move_speed;
+                    if (SNAKE.Direct != Snake::Direction::UP)
+                        SNAKE.Direct = Snake::Direction::DOWN;
                 }
-                if (x_offset < -0.9f)
-                    x_offset = 0.9f;
-                if (x_offset > 0.9f)
-                    x_offset = -0.9f;
-                if (y_offset > 0.9f)
-                    y_offset = -0.9f;
-                if (y_offset < -0.9f)
-                    y_offset = 0.9f;
-                x_offset += xGOR;
-                x_offset += xGOL;
-                y_offset += yGOUp;
-                y_offset += yGODo;
                 
-        // Увеличиваем угол поворота
-        angle += 0.9f;
-        if (angle > 360.0f)
-            angle = 0.0f;
 
 
-        // Рисуем квадрат
-        glBegin(GL_QUADS);
-            glColor3f(0.2f, 0.8f, 0.8f);
-            glVertex2f(-0.02f + x_offset, -0.02f + y_offset);
-            glVertex2f( 0.02f + x_offset, -0.02f + y_offset);
-            glVertex2f( 0.02f + x_offset,  0.02f + y_offset);
-            glVertex2f(-0.02f + x_offset,  0.02f + y_offset);
-        glEnd();
+        // Проверяет, пора ли обновлять змейку Если прошло больше или равно 100 мс → змейка двигается
+        if (elapsedTime >= updateInterval) {
+            SNAKE.move();                           // Обновляем позицию змейки
+            lastUpdateTime = currentTime;           // Обновляет lastUpdateTime, чтобы отсчёт начался заново
+            if (SNAKE.gameOver())
+                break;
+        }
 
-        // // Рисуем линию
-        // glBegin(GL_LINES);
-        //     glColor3f(0.7f, 0.2f, 0.4f); //  линия
-        //     glVertex2f(-1.0f, 0.0f);
-        //     glVertex2f(1.0f, 0.0f);
-        // glEnd();
+        SNAKE.show();                               // отрисовка змейки
+        if (SNAKE.foodAte(ptrFOOD))
+        {
+            randX = -0.9f + static_cast<float>(std::rand()) / (RAND_MAX / 1.8f);
+            randY = -0.9f + static_cast<float>(std::rand()) / (RAND_MAX / 1.8f);
 
-        // // Рисуем линию
-        // glBegin(GL_LINES);
-        //     glColor3f(0.1f, 0.4f, 0.7f); //  линия
-        //     glVertex2f(0.0f, 1.0f);
-        //     glVertex2f(0.0f, -1.0f);
-        // glEnd();
-
-        // Вращающаяся линия
-        glPushMatrix();
-        /*
-        glPushMatrix() сохраняет текущую матрицу преобразований т .е. положение, поворот...
-        OpenGL использует стек матриц, чтобы сохран  состояния для рисования объектов
-        */
-        glLoadIdentity();            // Сброс матрицы в единичную (ВАЖНО!)
-        //единичная матрица - это матрица не оказывает никакого эффекта на объекты
-        // чтобы избежать накопления эффектов предыдущих трансформаций
-        // иначе другие трансформации будут накапливаться !!!!!!
-        glRotatef(angle, 0.0f, 0.0f, 1.0f); // поворот плоскости
-        glBegin(GL_LINES);
-            glColor3f(1.0f, 0.5f, 0.2f); // Цвет вращающейся линии
-            glVertex2f(-0.8f, 0.0f);
-            glVertex2f( 0.8f, 0.0f);
-        glEnd();
-        glPopMatrix(); // восстанавливает последнюю сохранённую матрицу из стека
-
+            ptrFOOD->setX(randX);
+            ptrFOOD->setY(randY);
+        }
+        
+        ptrFOOD->show();
+        
+        
         // Рисуем замкнутую линию (контур квадрата)
         glBegin(GL_LINE_LOOP);
             glColor3f(0.8f, 0.8f, 0.8f); // контур
@@ -144,9 +111,13 @@ int main() {
 
         glfwSwapBuffers(window); // отрисованый буфер в изображение
         glfwPollEvents(); // обрабатывает все ожидающие события
-    }
 
+        // Небольшая пауза, чтобы не нагружать CPU
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //При пройгрыше пока что пауза
     glfwDestroyWindow(window); 
-    glfwTerminate(); 
+    glfwTerminate();
+    delete ptrFOOD;
     return 0;
 }
