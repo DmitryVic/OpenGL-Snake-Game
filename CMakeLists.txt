@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 project(OpenGLES_Emulation)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+# Генерация compile_commands.json для cppcheck
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+#путь для генерации
+set(CMAKE_EXPORT_COMPILE_COMMANDS_FILE "${CMAKE_SOURCE_DIR}/compile_commands.json")
+
 
 # Находим OpenGL
 find_package(OpenGL REQUIRED)
@@ -37,5 +43,21 @@ else()
         OpenGL::GL
         GLEW::GLEW
         glfw
+    )
+endif()
+
+
+# Автоматический запуск CppCheck ТОЛЬКО в Debug
+find_program(CPPCHECK cppcheck)
+if(CPPCHECK AND CMAKE_BUILD_TYPE STREQUAL "Debug")  # AND CMAKE_BUILD_TYPE STREQUAL "Debug" только в дебагере
+    add_custom_target(cppcheck ALL
+        COMMAND ${CPPCHECK}
+            --project=${CMAKE_BINARY_DIR}/compile_commands.json
+            --enable=warning,performance,portability,style
+            --suppress=missingIncludeSystem
+            --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck-suppressions
+            --inline-suppr
+            --check-level=exhaustive
+        COMMENT "Запуск CppCheck (только в Debug-сборке)..."
     )
 endif()

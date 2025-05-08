@@ -14,7 +14,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(1000, 800, "0 1 Квадрат", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "0 1 Квадрат", nullptr, nullptr);
     if (!window) {
         std::cerr << "Не удалось создать окно GLFW\n";
         glfwTerminate();
@@ -32,6 +32,10 @@ int main() {
     float x_offset = 0.0f; 
     float y_offset = 0.0f; 
     float move_speed = 0.01f; // скорость движения квадрата
+    float xGOR = 0.0f;
+    float yGOUp = 0.0f;
+    float xGOL = 0.0f;
+    float yGODo = move_speed;
 
      float angle = 0.0f; // угол вращения
 
@@ -40,23 +44,47 @@ int main() {
          // Устанавливаем цвет фона
          glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
          glClear(GL_COLOR_BUFFER_BIT); // очищаем буфер кадра а именно фон GL_COLOR_BUFFER_BIT очистить цветовой буфер
-         
+
                 // Проверяем нажатия клавиш
                 if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                    x_offset -= move_speed;
+                    xGOR = 0.0000000000000f;
+                    xGOL = - move_speed;
+                    yGOUp = 0.0000000000000f;
+                    yGODo = 0.0000000000000f;
                 }
                 // glfwGetKey(window, клавиша) проверяет состояние определённой клавиши в данный момент
                 //GLFW_PRESS — клавиша нажата (держится нажатой).
                 //GLFW_RELEASE — клавиша отпущена.
                 if (glfwGetKey(window/* указатель на окно выше GLFWwindow* window*/, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                    x_offset += move_speed;
+                    xGOR = move_speed;
+                    xGOL = 0.0000000000000f;
+                    yGOUp = 0.0000000000000f;
+                    yGODo = 0.0000000000000f;
                 }
                 if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-                    y_offset += move_speed;
+                    xGOR = 0.0000000000000f;
+                    xGOL = 0.0000000000000f;
+                    yGOUp = move_speed;
+                    yGODo = 0.0000000000000f;
                 }
                 if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                    y_offset -= move_speed;
+                    xGOR = 0.0000000000000f;
+                    xGOL = 0.0000000000000f;
+                    yGOUp = 0.0000000000000f;
+                    yGODo = - move_speed;
                 }
+                if (x_offset < -0.9f)
+                    x_offset = 0.9f;
+                if (x_offset > 0.9f)
+                    x_offset = -0.9f;
+                if (y_offset > 0.9f)
+                    y_offset = -0.9f;
+                if (y_offset < -0.9f)
+                    y_offset = 0.9f;
+                x_offset += xGOR;
+                x_offset += xGOL;
+                y_offset += yGOUp;
+                y_offset += yGODo;
                 
         // Увеличиваем угол поворота
         angle += 0.9f;
@@ -66,26 +94,26 @@ int main() {
 
         // Рисуем квадрат
         glBegin(GL_QUADS);
-            glColor3f(0.0f, 0.7f, 0.7f);
+            glColor3f(0.2f, 0.8f, 0.8f);
             glVertex2f(-0.02f + x_offset, -0.02f + y_offset);
             glVertex2f( 0.02f + x_offset, -0.02f + y_offset);
             glVertex2f( 0.02f + x_offset,  0.02f + y_offset);
             glVertex2f(-0.02f + x_offset,  0.02f + y_offset);
         glEnd();
 
-        // Рисуем линию
-        glBegin(GL_LINES);
-            glColor3f(0.7f, 0.2f, 0.4f); //  линия
-            glVertex2f(-1.0f, 0.0f);
-            glVertex2f(1.0f, 0.0f);
-        glEnd();
+        // // Рисуем линию
+        // glBegin(GL_LINES);
+        //     glColor3f(0.7f, 0.2f, 0.4f); //  линия
+        //     glVertex2f(-1.0f, 0.0f);
+        //     glVertex2f(1.0f, 0.0f);
+        // glEnd();
 
-        // Рисуем линию
-        glBegin(GL_LINES);
-            glColor3f(0.1f, 0.4f, 0.7f); //  линия
-            glVertex2f(0.0f, 1.0f);
-            glVertex2f(0.0f, -1.0f);
-        glEnd();
+        // // Рисуем линию
+        // glBegin(GL_LINES);
+        //     glColor3f(0.1f, 0.4f, 0.7f); //  линия
+        //     glVertex2f(0.0f, 1.0f);
+        //     glVertex2f(0.0f, -1.0f);
+        // glEnd();
 
         // Вращающаяся линия
         glPushMatrix();
@@ -108,17 +136,17 @@ int main() {
         // Рисуем замкнутую линию (контур квадрата)
         glBegin(GL_LINE_LOOP);
             glColor3f(0.8f, 0.8f, 0.8f); // контур
-            glVertex2f(-0.5f, -0.5f);
-            glVertex2f( 0.5f, -0.5f);
-            glVertex2f( 0.5f,  0.5f);
-            glVertex2f(-0.5f,  0.5f);
+            glVertex2f(-0.92f, -0.92f);
+            glVertex2f( 0.92f, -0.92f);
+            glVertex2f( 0.92f,  0.92f);
+            glVertex2f(-0.92f,  0.92f);
         glEnd();
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwSwapBuffers(window); // отрисованый буфер в изображение
+        glfwPollEvents(); // обрабатывает все ожидающие события
     }
 
-    glfwDestroyWindow(window); // отрисованый буфер в изображение
-    glfwTerminate(); // обрабатывает все ожидающие события
+    glfwDestroyWindow(window); 
+    glfwTerminate(); 
     return 0;
 }
