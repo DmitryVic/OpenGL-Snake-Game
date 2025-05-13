@@ -20,6 +20,7 @@ add_executable(SnakeGame
     src/main.cpp
     src/snake.cpp
     src/Food.cpp
+    src/randomGenerate.cpp
     )
 
 # Явно указать include-директории для cppcheck

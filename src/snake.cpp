@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 
 
+
 Snake::Snake(/* args */)
 {
     // Начальные позиции двух сегментов
@@ -21,13 +22,11 @@ Snake::~Snake()
 
 void Snake::show(){
 
-    
-
     // Отрисовка всех сегментов
     for (const auto& segment : segments) {
         glBegin(GL_QUADS);
         //glColor3f(0.2f, 0.8f, 0.8f);
-        glColor3f(abs(segment.x * 1.1f + 0.18f), abs(segment.y * 1.1f + 0.18f), abs(segment.x * 1.1f + segment.y * 1.1f));
+        glColor3f(sin(segment.x) * sin(segment.x) + 0.5f, segment.x * segment.x * 1.2f + 0.4f, (segment.x + segment.y)*(segment.x + segment.y) + 0.5f);
         
         glVertex2f(-0.02f + segment.x, -0.02f + segment.y);
         glVertex2f(0.02f + segment.x, -0.02f + segment.y);
@@ -63,7 +62,7 @@ bool Snake::foodAte(Food* ptrFood){
     float x = ptrFood->getX();
     float y = ptrFood->getY();
     //задаем точность, с которой будут сравниваться числа
-    float epsilon = 0.04f;
+    float epsilon = 0.02f;
     //ищем разницу между числами
     float diffX = x - segments[0].x;
     float diffY = y - segments[0].y;
