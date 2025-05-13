@@ -45,10 +45,10 @@ void Snake::move(){
 
     // перемещаем голову
     switch (Direct) {
-        case UP:    segments[0].y += move_speed; break;
-        case DOWN:  segments[0].y -= move_speed; break;
-        case LEFT:  segments[0].x -= move_speed; break;
-        case RIGHT: segments[0].x += move_speed; break;
+        case UP:    segments[0].y += moveStep; break;
+        case DOWN:  segments[0].y -= moveStep; break;
+        case LEFT:  segments[0].x -= moveStep; break;
+        case RIGHT: segments[0].x += moveStep; break;
     }
 
     // Проверка границ для головы

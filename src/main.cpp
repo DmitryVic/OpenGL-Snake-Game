@@ -42,46 +42,72 @@ int main() {
         return -1;
     }
 
-    Snake SNAKE;
+    Snake SNAKE;                                                    // Создали змейку
 
     Food* ptrFOOD = new Food(4.8f, 0.02f, randomGenGameBoard(), randomGenGameBoard());
-    bool key = 0;
-     // Основной цикл
+    bool keyDontCount = false;                                      // Отрисовка медленее возможного нажатия и основного цикла, чтобы предотвратить изменения до отрисовки
+    bool keyPressedLeft = false;                                    // Клавиша нажата? Если клавиша нажата, то больше ее не читаем пока не отожмем
+    bool keyPressedRight = false;                                   // Клавиша нажата? Если клавиша нажата, то больше ее не читаем пока не отожмем
+    bool keyPressedUp = false;                                      // Клавиша нажата? Если клавиша нажата, то больше ее не читаем пока не отожмем
+    bool keyPressedDown = false;                                    // Клавиша нажата? Если клавиша нажата, то больше ее не читаем пока не отожмем
+    
+    /*
+                ОСНОВНОЙ ЦИКЛ
+    */
      while (!glfwWindowShouldClose(window)) {
         
-        auto currentTime = clock::now();                        // Получает текущее время
-        auto elapsedTime = currentTime - lastUpdateTime;        // Считает, сколько времени прошло с последнего обновления
+        auto currentTime = clock::now();                            // Получает текущее время
+        auto elapsedTime = currentTime - lastUpdateTime;            // Считает, сколько времени прошло с последнего обновления
 
         // Устанавливаем цвет фона
-         glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
-         glClear(GL_COLOR_BUFFER_BIT);                          // очищаем буфер кадра а именно фон GL_COLOR_BUFFER_BIT очистить цветовой буфер 
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); 
+        glClear(GL_COLOR_BUFFER_BIT);                               // очищаем буфер кадра а именно фон GL_COLOR_BUFFER_BIT очистить цветовой буфер 
 
         // Проверяем нажатия клавиш GLFW_PRESS 
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::RIGHT && SNAKE.Direct != Snake::Direction::LEFT && !key) {
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::RIGHT 
+        && SNAKE.Direct != Snake::Direction::LEFT && !keyDontCount && !keyPressedLeft) {
             SNAKE.Direct = Snake::Direction::LEFT;
-            key = 1;
+            keyDontCount = true;                                        // Отрисовка медленее возможного нажатия и основного цикла, чтобы предотвратить изменения до отрисовки
+            keyPressedLeft = true;                                      // Если клавиша нажата, то больше ее не читаем пока не отожмем
         }
-        else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::LEFT && SNAKE.Direct != Snake::Direction::RIGHT && !key) {
+        else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::LEFT 
+        && SNAKE.Direct != Snake::Direction::RIGHT && !keyDontCount && !keyPressedRight) {
             SNAKE.Direct = Snake::Direction::RIGHT;
-            key = 1;
+            keyDontCount = true;                                         // Отрисовка медленее возможного нажатия и основного цикла, чтобы предотвратить изменения до отрисовки
+            keyPressedRight = true;                                      // Если клавиша нажата, то больше ее не читаем пока не отожмем
         }
-        else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::DOWN && SNAKE.Direct != Snake::Direction::UP && !key) {
+        else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::DOWN 
+        && SNAKE.Direct != Snake::Direction::UP && !keyDontCount && !keyPressedUp) {
             SNAKE.Direct = Snake::Direction::UP;
-            key = 1;
+            keyDontCount = true;                                         // Отрисовка медленее возможного нажатия и основного цикла, чтобы предотвратить изменения до отрисовки
+            keyPressedUp = true;                                       // Если клавиша нажата, то больше ее не читаем пока не отожмем
         }
-        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::UP && SNAKE.Direct != Snake::Direction::DOWN && !key) {
+        else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && SNAKE.Direct != Snake::Direction::UP 
+        && SNAKE.Direct != Snake::Direction::DOWN && !keyDontCount && !keyPressedDown) {
             SNAKE.Direct = Snake::Direction::DOWN;
-            key = 1;
+            keyDontCount = true;                                         // Отрисовка медленее возможного нажатия и основного цикла, чтобы предотвратить изменения до отрисовки
+            keyPressedDown = true;                                      // Если клавиша нажата, то больше ее не читаем пока не отожмем
         }
-                
-
+        
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_RELEASE) {        // Если клавиша отжата, только тогда можно ее нажимать снова
+            keyPressedLeft = false;
+        }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_RELEASE) {        // Если клавиша отжата, только тогда можно ее нажимать снова
+            keyPressedRight = false;
+        }
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_RELEASE) {          // Если клавиша отжата, только тогда можно ее нажимать снова
+            keyPressedUp = false;
+        }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_RELEASE) {        // Если клавиша отжата, только тогда можно ее нажимать снова
+            keyPressedDown = false;
+        }
 
         // Проверяет, пора ли обновлять змейку Если прошло больше или равно 100 мс → змейка двигается
         if (elapsedTime >= updateInterval) {
-            SNAKE.move();                           // Обновляем позицию змейки
-            key = 0;                                //  запрет кнопок снят после отрисовки
-            lastUpdateTime = currentTime;           // Обновляет lastUpdateTime, чтобы отсчёт начался заново
-            if (SNAKE.gameOver())
+            SNAKE.move();                                             // Обновляем позицию змейки
+            keyDontCount = 0;                                        //  запрет кнопок снят после отрисовки
+            lastUpdateTime = currentTime;                              // Обновляет lastUpdateTime, чтобы отсчёт начался заново
+            if (SNAKE.gameOver())   
                 break;
         }
 
