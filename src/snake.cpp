@@ -26,8 +26,7 @@ void Snake::show(){
     for (const auto& segment : segments) {
         glBegin(GL_QUADS);
         //glColor3f(0.2f, 0.8f, 0.8f);
-        glColor3f(sin(segment.x) * sin(segment.x) + 0.5f, segment.x * segment.x * 1.2f + 0.4f, (segment.x + segment.y)*(segment.x + segment.y) + 0.5f);
-        
+        glColor3f(segment.x * segment.x + 0.1f, (segment.y + segment.y)*(segment.x + segment.x)* 1.4f + 0.5f, segment.y + segment.y + 0.4f);        
         glVertex2f(-0.02f + segment.x, -0.02f + segment.y);
         glVertex2f(0.02f + segment.x, -0.02f + segment.y);
         glVertex2f( 0.02f + segment.x, 0.02f + segment.y);
